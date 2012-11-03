@@ -1561,14 +1561,14 @@ static struct samsung_battery_platform_data samsung_battery_pdata = {
 	.chg_curr_siop_lv3 = 475,
 #endif
 
-	.chg_curr_usb = 475,
+	.chg_curr_usb = 900,
 	.chg_curr_cdp = 1000,
 #if defined(CONFIG_MACH_T0_USA_VZW)
 	.chg_curr_wpc = 650,
 #else
-	.chg_curr_wpc = 475,
+	.chg_curr_wpc = 900,
 #endif
-	.chg_curr_etc = 475,
+	.chg_curr_etc = 900,
 
 	.chng_interval = 30,
 	.chng_susp_interval = 60,
@@ -2414,10 +2414,10 @@ static struct platform_device *midas_devices[] __initdata = {
 /* below temperature base on the celcius degree */
 struct s5p_platform_tmu midas_tmu_data __initdata = {
 	.ts = {
-		.stop_1st_throttle  = 78,
-		.start_1st_throttle = 80,
-		.stop_2nd_throttle  = 87,
-		.start_2nd_throttle = 103,
+		.stop_1st_throttle  = 80,
+		.start_1st_throttle = 89,
+		.stop_2nd_throttle  = 90,
+		.start_2nd_throttle = 105,
 		.start_tripping	    = 110, /* temp to do tripping */
 		.start_emergency    = 120, /* To protect chip,forcely kernel panic */
 		.stop_mem_throttle  = 80,
