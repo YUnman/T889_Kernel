@@ -487,6 +487,7 @@ static _mali_osk_errcode_t enable_mali_clocks(void)
 	}
 	
 	if (mali_gpu_clk <= mali_runtime_resume.clk)
+		set_mali_dvfs_current_step(4);
 
 	MALI_SUCCESS;
 }
