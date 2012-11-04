@@ -193,7 +193,7 @@ SUBARCH := $(shell uname -m | sed -e s/i.86/i386/ -e s/sun4u/sparc64/ \
 # Note: Some architectures assign CROSS_COMPILE in their arch/*/Makefile
 export KBUILD_BUILDHOST := $(SUBARCH)
 ARCH		?= arm
-CROSS_COMPILE = /home/curtis/kernel_dev/arm-eabi-4.6/bin/arm-eabi-
+CROSS_COMPILE = /home/curtis/kernel_dev/arm-eabi-4.4.3/bin/arm-eabi-
 
 # Architecture as present in compile.h
 UTS_MACHINE 	:= $(ARCH)
@@ -372,8 +372,8 @@ KBUILD_CFLAGS   := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
 		   -pipe \
 		   -ffast-math \
 		   -mfpu=neon \
-		   -march=armv7-a -mcpu=cortex-a9 -mtune=cortex-a9 \
-		   -funswitch-loops -fpredictive-commoning -fgcse-after-reload \
+		   -march=armv7-a \
+		   -mtune=cortex-a9 \
 		   -fno-delete-null-pointer-checks
 
 KBUILD_AFLAGS_KERNEL :=
