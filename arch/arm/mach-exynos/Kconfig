@@ -1809,3 +1809,7 @@ config CPU_FREQ_TETHERING
 	bool "Lock cpu freq & bus clock when tethering mode turn on"
 	depends on QC_MODEM
 	default n
+
+config 2GHZ
+	bool "Enable 2.0GHz Overclock"
+	default n

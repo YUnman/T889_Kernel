@@ -37,6 +37,12 @@
 #include <mach/sec_debug.h>
 #endif
 
+#if defined CONFIG_2GHZ
+#define num_levels 19
+#else
+#define num_levels 18
+#endif
+
 struct exynos_dvfs_info *exynos_info;
 
 static struct regulator *arm_regulator;
@@ -873,18 +879,23 @@ ssize_t store_UV_uV_table(struct cpufreq_policy *policy,
 
 	unsigned int ret = -EINVAL;
 	int i = 0;
-	int t[19];
-
+	int t[num_levels];
+#if defined CONFIG_2GHZ
 	ret = sscanf(buf, "%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d",
 		     &t[0],&t[1],&t[2],&t[3],&t[4],&t[5],&t[6],&t[7],&t[8],&t[9],&t[10],
 		     &t[11],&t[12],&t[13],&t[14],&t[15],&t[16],&t[17],&t[18]);
+#else
+	ret = sscanf(buf, "%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d",
+		     &t[0],&t[1],&t[2],&t[3],&t[4],&t[5],&t[6],&t[7],&t[8],&t[9],&t[10],
+		     &t[11],&t[12],&t[13],&t[14],&t[15],&t[16],&t[17]);
+#endif
 
-	if(ret != 19) {
+	if(ret != num_levels) {
 		return -EINVAL;
 	} else {
 		int invalid_offset = 0;
 		
-		for (i = 0; i < 19; i++) {
+		for (i = 0; i < num_levels; i++) {
 			if (t[i] > CPU_UV_MV_MAX) 
 				t[i] = CPU_UV_MV_MAX;
 			else if (t[i] < CPU_UV_MV_MIN) 
@@ -904,18 +915,24 @@ ssize_t store_UV_mV_table(struct cpufreq_policy *policy,
 
 	unsigned int ret = -EINVAL;
 	int i = 0;
-	int t[19];
+	int t[num_levels];
 
+#if defined CONFIG_2GHZ
 	ret = sscanf(buf, "%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d",
 		     &t[0],&t[1],&t[2],&t[3],&t[4],&t[5],&t[6],&t[7],&t[8],&t[9],&t[10],
 		     &t[11],&t[12],&t[13],&t[14],&t[15],&t[16],&t[17],&t[18]);
+#else
+	ret = sscanf(buf, "%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d",
+		     &t[0],&t[1],&t[2],&t[3],&t[4],&t[5],&t[6],&t[7],&t[8],&t[9],&t[10],
+		     &t[11],&t[12],&t[13],&t[14],&t[15],&t[16],&t[17]);
+#endif
 
-	if(ret != 19) {
+	if(ret != num_levels) {
 		return -EINVAL;
 	} else {
 		int invalid_offset = 0;
 		
-		for (i = 0; i < 19; i++) {
+		for (i = 0; i < num_levels; i++) {
 			int rest = 0;
 
 			t[i] *= 1000;

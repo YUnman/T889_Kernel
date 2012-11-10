@@ -627,7 +627,11 @@ static unsigned int get_max_cpufreq_idx(void)
 
 	/* exynos4x12 prime supports 1.6GHz */
 	if (samsung_rev() >= EXYNOS4412_REV_2_0)
+#if defined CONFIG_2GHZ
 		index = L0;
+#else
+		index = L1;
+#endif
 	else {
 	/* exynos4x12 supports only 1.4GHz and 1.1GHz */
 		if (exynos_armclk_max != 1400000)
