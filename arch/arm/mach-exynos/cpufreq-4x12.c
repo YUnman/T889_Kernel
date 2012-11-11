@@ -50,9 +50,9 @@ unsigned int exynos4x12_volt_table[CPUFREQ_LEVEL_END];
 
 static struct cpufreq_frequency_table exynos4x12_freq_table[] = {
 	{L0, 2000*1000},
-	{L1, 1920*1000},
+	{L1, 1900*1000},
 	{L2, 1800*1000},
-	{L3, 1704*1000},
+	{L3, 1700*1000},
 	{L4, 1600*1000},
 	{L5, 1500*1000},
 	{L6, 1400*1000},
@@ -132,7 +132,7 @@ static unsigned int clkdiv_cpu0_4412[CPUFREQ_LEVEL_END][8] = {
 	 *		DIVATB, DIVPCLK_DBG, DIVAPLL, DIVCORE2 }
 	 */
 	/* ARM L0: 2000Mhz */
-	{ 0, 5, 7, 0, 8, 1, 8, 0 },
+	{ 0, 4, 7, 0, 7, 1, 7, 0 },
 
 	/* ARM L1: 1920Mhz */
 	{ 0, 4, 7, 0, 7, 1, 7, 0 },
@@ -303,17 +303,17 @@ static unsigned int clkdiv_cpu1_4412[CPUFREQ_LEVEL_END][3] = {
 
 static unsigned int exynos4x12_apll_pms_table[CPUFREQ_LEVEL_END] = {
 
-	/* APLL FOUT L0: 2000MHz */
-	((250<<16)|(3<<8)|(0x0)),
+	/* APLL FOUT L0: 1998MHz */
+	((333<<16)|(4<<8)|(0x0)),
 
-	/* APLL FOUT L1: 1920MHz */
-	((240<<16)|(3<<8)|(0x0)),
+	/* APLL FOUT L1: 1902MHz */
+	((317<<16)|(4<<8)|(0x0)),
 
 	/* APLL FOUT L2: 1800MHz */
-	((225<<16)|(3<<8)|(0x0)),
+	((300<<16)|(4<<8)|(0x0)),
 
 	/* APLL FOUT L3: 1704MHz */
-	((213<<16)|(3<<8)|(0x0)),
+	((284<<16)|(4<<8)|(0x0)),
 
 	/* APLL FOUT L4: 1600MHz */
 	((200<<16)|(3<<8)|(0x0)),
