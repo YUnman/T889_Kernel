@@ -244,7 +244,7 @@ static unsigned int clkdiv_cpu1_4412[CPUFREQ_LEVEL_END][3] = {
 	 * { DIVCOPY, DIVHPM, DIVCORES }
 	 */
 	/* ARM L0: 2000MHz */
-	{ 8, 0, 8 },
+	{ 7, 0, 7 },
 
 	/* ARM L1: 1920MHz */
 	{ 7, 0, 7 },
@@ -303,8 +303,8 @@ static unsigned int clkdiv_cpu1_4412[CPUFREQ_LEVEL_END][3] = {
 
 static unsigned int exynos4x12_apll_pms_table[CPUFREQ_LEVEL_END] = {
 
-	/* APLL FOUT L0: 1998MHz */
-	((333<<16)|(4<<8)|(0x0)),
+	/* APLL FOUT L0: 1976MHz */
+	((330<<16)|(4<<8)|(0x0)),
 
 	/* APLL FOUT L1: 1902MHz */
 	((317<<16)|(4<<8)|(0x0)),
