@@ -15,13 +15,13 @@ obj-y += groups.o
 
 ifdef CONFIG_FUNCTION_TRACER
 # Do not trace debug files and internal ftrace files
-CFLAGS_REMOVE_lockdep.o = -pg
-CFLAGS_REMOVE_lockdep_proc.o = -pg
-CFLAGS_REMOVE_mutex-debug.o = -pg
-CFLAGS_REMOVE_rtmutex-debug.o = -pg
-CFLAGS_REMOVE_cgroup-debug.o = -pg
-CFLAGS_REMOVE_sched_clock.o = -pg
-CFLAGS_REMOVE_irq_work.o = -pg
+CFLAGS_REMOVE_lockdep.o = -Os
+CFLAGS_REMOVE_lockdep_proc.o = -Os
+CFLAGS_REMOVE_mutex-debug.o = -Os
+CFLAGS_REMOVE_rtmutex-debug.o = -Os
+CFLAGS_REMOVE_cgroup-debug.o = -Os
+CFLAGS_REMOVE_sched_clock.o = -Os
+CFLAGS_REMOVE_irq_work.o = -Os
 endif
 
 obj-$(CONFIG_FREEZER) += freezer.o
@@ -114,7 +114,7 @@ ifneq ($(CONFIG_SCHED_OMIT_FRAME_POINTER),y)
 # me.  I suspect most platforms don't need this, but until we know that for sure
 # I turn this off for IA-64 only.  Andreas Schwab says it's also needed on m68k
 # to get a correct value for the wait-channel (WCHAN in ps). --davidm
-CFLAGS_sched.o := $(PROFILING) -fno-omit-frame-pointer
+CFLAGS_sched.o := $(PROFILING) -fomit-frame-pointer
 endif
 
 $(obj)/configs.o: $(obj)/config_data.h
