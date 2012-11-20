@@ -227,15 +227,12 @@ int subsystem_restart(const char *subsys_name)
 	}
 
 	subsys->ongoing = true;
-#if defined CONFIG_SEC_DEBUG
+
 	/* check debug level */
 	if (!sec_debug_level.uint_val) {
 		/* debug level is low, set mdm_dump to Zero */
 		mdm_dump = 0;
 	}
-#else
-		mdm_dump = 0;
-#endif
 
 	data = kzalloc(sizeof(struct restart_wq_data), GFP_KERNEL);
 	if (!data) {
