@@ -169,8 +169,8 @@ int touch_is_pressed;
 #define ISC_DL_MODE	1
 
 /* 5.55" OCTA LCD */
-#define FW_VERSION_L 0x25
-#define FW_VERSION_M 0x26
+#define FW_VERSION_L 0x29
+#define FW_VERSION_M 0x50
 #define MAX_FW_PATH 255
 #define TSP_FW_FILENAME "melfas_fw.bin"
 
@@ -798,6 +798,12 @@ static void melfas_lcd_cb(struct tsp_lcd_callbacks *cb, bool en)
 {
 	struct mms_ts_info *info =
 			container_of(cb, struct mms_ts_info, lcd_callback);
+
+	if (info->enabled == false) {
+		dev_err(&info->client->dev,
+			"[TSP] do not excute %s.(touch off)\n", __func__);
+		return;
+	}
 
 	if (info->fw_ic_ver < 0x21) {
 		dev_err(&info->client->dev,
@@ -2300,7 +2306,7 @@ static int mms_ts_fw_info(struct mms_ts_info *info)
 	return ret;
 }
 
-static int mms_ts_fw_load(struct mms_ts_info *info)
+static int mms_ts_fw_load(struct mms_ts_info *info, bool force, char ldi)
 {
 
 	struct i2c_client *client = info->client;
@@ -2321,15 +2327,24 @@ static int mms_ts_fw_load(struct mms_ts_info *info)
 		goto out;
 	}
 
-	if (info->ldi == 'L')
-		bin_ver = FW_VERSION_L;
-	else
-		bin_ver = FW_VERSION_M;
+	if (ldi == 'N') {
+		if (info->ldi == 'M')
+			bin_ver = FW_VERSION_M;
+		else
+			bin_ver = FW_VERSION_L;
+	} else {
+		if (ldi == 'M')
+			bin_ver = FW_VERSION_M;
+		else
+			bin_ver = FW_VERSION_L;
+	}
 
-	if ((ver >= bin_ver) && (ver != 0xff)) {
-		dev_info(&client->dev,
-			"fw version update does not need\n");
-		goto done;
+	if (!force) {
+		if ((ver >= bin_ver) && (ver != 0xff)) {
+			dev_info(&client->dev,
+				"fw version update does not need\n");
+			goto done;
+		}
 	}
 
 	while (retries--) {
@@ -3126,7 +3141,7 @@ static void get_config_ver(void *device_data)
 	set_default_result(info);
 
 	if (info->ldi == 'L')
-		snprintf(buff, sizeof(buff), "N7100_Me_0910_L");
+		snprintf(buff, sizeof(buff), "N7100_Me_0921_L");
 	else
 		snprintf(buff, sizeof(buff), "N7100_Me_0911_M");
 	set_cmd_result(info, buff, strnlen(buff, sizeof(buff)));
@@ -3385,7 +3400,7 @@ static void get_x_num(void *device_data)
 				__func__, val);
 			return;
 		}
-	} else {
+	} else if (info->fw_ic_ver < 0x29) {
 		ret = i2c_smbus_read_i2c_block_data(info->client,
 			ADDR_CH_NUM, 2, r_buf);
 		val = r_buf[0];
@@ -3399,6 +3414,8 @@ static void get_x_num(void *device_data)
 				__func__, val);
 			return;
 		}
+	} else {
+		val = 30;
 	}
 	snprintf(buff, sizeof(buff), "%u", val);
 	set_cmd_result(info, buff, strnlen(buff, sizeof(buff)));
@@ -3431,7 +3448,7 @@ static void get_y_num(void *device_data)
 				__func__, val);
 			return;
 		}
-	} else {
+	} else if (info->fw_ic_ver < 0x29) {
 		ret = i2c_smbus_read_i2c_block_data(info->client,
 			ADDR_CH_NUM, 2, r_buf);
 		val = r_buf[1];
@@ -3445,6 +3462,8 @@ static void get_y_num(void *device_data)
 				__func__, val);
 			return;
 		}
+	} else {
+		val = 17;
 	}
 	snprintf(buff, sizeof(buff), "%u", val);
 	set_cmd_result(info, buff, strnlen(buff, sizeof(buff)));
@@ -3892,6 +3911,7 @@ static int __devinit mms_ts_probe(struct i2c_client *client,
 				ret);
 			goto err_config;
 		}
+		info->fw_core_ver = get_fw_version(info, SEC_CORE);
 	}
 
 	if (info->ldi == 'L') {
@@ -3905,6 +3925,23 @@ static int __devinit mms_ts_probe(struct i2c_client *client,
 					"failed to initialize (%d)\n", ret);
 				goto err_config;
 			}
+			info->fw_core_ver = get_fw_version(info, SEC_CORE);
+		}
+		info->panel = get_panel_version(info);
+		if (info->panel != 'M') {
+			if (info->fw_core_ver == 0x53) {
+				dev_err(&client->dev, "cannot read panel info\n");
+				dev_err(&client->dev, "excute core firmware update\n");
+				ret = mms_ts_fw_load(info, true, 'L');
+			} else {
+				dev_err(&client->dev, "excute core firmware update\n");
+				ret = mms_ts_core_fw_load(info);
+			}
+			if (ret) {
+				dev_err(&client->dev,
+					"failed to initialize (%d)\n",
+					ret);
+			}
 		}
 		info->fw_ic_ver = get_fw_version(info, SEC_CONFIG);
 		if (((info->fw_ic_ver < FW_VERSION_L) ||
@@ -3916,9 +3953,21 @@ static int __devinit mms_ts_probe(struct i2c_client *client,
 			if ((info->fw_ic_ver >= 0x21) ||
 				(info->fw_ic_ver == 0) ||
 				(info->fw_ic_ver == 0xff))
-				ret = mms_ts_fw_load(info);
+				ret = mms_ts_fw_load(info, false, 'N');
 			else
 				ret = mms_ts_core_fw_load(info);
+			if (ret) {
+				dev_err(&client->dev,
+					"failed to initialize (%d)\n", ret);
+				goto err_config;
+			}
+		}
+		if ((info->fw_ic_ver >= 0x50) &&
+			(info->fw_ic_ver <= 0x69)) {
+			dev_err(&client->dev, "LSI panel, Magna firmware written\n");
+			dev_err(&client->dev, "ic:0x%x, bin:0x%x\n",
+				info->fw_ic_ver, FW_VERSION_L);
+			ret = mms_ts_fw_load(info, true, 'L');
 			if (ret) {
 				dev_err(&client->dev,
 					"failed to initialize (%d)\n", ret);
@@ -3940,6 +3989,8 @@ static int __devinit mms_ts_probe(struct i2c_client *client,
 						ret);
 					goto err_config;
 				}
+				info->fw_core_ver =
+					get_fw_version(info, SEC_CORE);
 			}
 			info->fw_ic_ver = get_fw_version(info, SEC_CONFIG);
 			if ((info->fw_ic_ver < FW_VERSION_M) &&
@@ -3949,7 +4000,7 @@ static int __devinit mms_ts_probe(struct i2c_client *client,
 					info->fw_ic_ver, FW_VERSION_M);
 				if ((info->fw_ic_ver >= 0x24) ||
 					(info->fw_ic_ver == 0))
-					ret = mms_ts_fw_load(info);
+					ret = mms_ts_fw_load(info, false, 'N');
 				else
 					ret = mms_ts_core_fw_load(info);
 				if (ret) {
@@ -3964,12 +4015,11 @@ static int __devinit mms_ts_probe(struct i2c_client *client,
 		} else {
 			dev_err(&client->dev, "cannot read panel info\n");
 			info->fw_ic_ver = get_fw_version(info, SEC_CONFIG);
-			if ((info->fw_core_ver == 0x53) &&
-				(info->fw_ic_ver == 0xff)) {
+			if (info->fw_core_ver == 0x53) {
 				dev_err(&client->dev, "firmware update\n");
 				dev_err(&client->dev, "ic:0x%x, bin:0x%x\n",
 					info->fw_ic_ver, FW_VERSION_M);
-				ret = mms_ts_fw_load(info);
+				ret = mms_ts_fw_load(info, true, 'N');
 			} else {
 				dev_err(&client->dev, "excute core firmware update\n");
 				ret = mms_ts_core_fw_load(info);
@@ -3978,6 +4028,18 @@ static int __devinit mms_ts_probe(struct i2c_client *client,
 				dev_err(&client->dev,
 					"failed to initialize (%d)\n",
 					ret);
+				goto err_config;
+			}
+		}
+		if ((info->fw_ic_ver >= 0x30) &&
+			(info->fw_ic_ver <= 0x49)) {
+			dev_err(&client->dev, "Magna panel, LSI firmware written\n");
+			dev_err(&client->dev, "ic:0x%x, bin:0x%x\n",
+				info->fw_ic_ver, FW_VERSION_M);
+			ret = mms_ts_fw_load(info, true, 'M');
+			if (ret) {
+				dev_err(&client->dev,
+					"failed to initialize (%d)\n", ret);
 				goto err_config;
 			}
 		}

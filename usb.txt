@@ -1,0 +1,7 @@
+arch/arm/mach-exynos/mdm_hsic_pm.c:int hello_packet_rx;
+arch/arm/mach-exynos/mdm_hsic_pm.c:		/* initailize hello_packet_rx */
+arch/arm/mach-exynos/mdm_hsic_pm.c:		hello_packet_rx = 0;
+drivers/usb/serial/usb_wwan.c:							hello_packet_rx) {
+drivers/usb/serial/usb_wwan.c:						hello_packet_rx = 1;
+drivers/usb/serial/usb_wwan.c:						hello_packet_rx = 0;
+include/linux/mdm_hsic_pm.h:extern int hello_packet_rx;
