@@ -521,7 +521,7 @@ static int s6evr02_set_elvss(struct lcd_info *lcd, u8 force)
 	case 240 ... 250:
 		elvss_level = ELVSS_STATUS_240;
 		break;
-	case 299:
+	case 255 ... 299:
 		elvss_level = ELVSS_STATUS_300;
 		break;
 	}
@@ -736,8 +736,8 @@ static int update_brightness(struct lcd_info *lcd, u8 force)
 
 	brightness = lcd->bd->props.brightness;
 
-	if (unlikely(!lcd->auto_brightness && brightness > 250))
-		brightness = 250;
+	//if (unlikely(!lcd->auto_brightness && brightness > 250))
+	//	brightness = 250;
 
 	lcd->bl = get_backlight_level_from_brightness(brightness);
 
