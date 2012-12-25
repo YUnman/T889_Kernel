@@ -583,9 +583,7 @@ _mali_osk_errcode_t mali_platform_init()
 _mali_osk_errcode_t mali_platform_deinit()
 {
 	deinit_mali_clock();
-#if MALI_VOLTAGE_LOCK
-	_mali_osk_atomic_term(&voltage_lock_status);
-#endif
+
 #if MALI_DVFS_ENABLED
 	deinit_mali_dvfs_status();
 	if (clk_register_map )
