@@ -68,7 +68,6 @@ typedef struct mali_dvfs_stepTag{
 	int vol;
 }mali_dvfs_step;
 
-
 mali_dvfs_staycount_table mali_dvfs_staycount[MALI_DVFS_STEPS]={
 	/*step 0*/{0},
 	/*step 1*/{0},
@@ -84,21 +83,19 @@ mali_dvfs_staycount_table mali_dvfs_staycount[MALI_DVFS_STEPS]={
 // L3 = 266Mhz, 0.90V
 // L4 = 160Mhz, 0.875V
 
-//	{160   ,1000000   ,  875000},
 mali_dvfs_table mali_dvfs_all[MAX_MALI_DVFS_STEPS]={
+	{160   ,1000000   ,  875000},
 	{266   ,1000000   ,  900000},
 	{350   ,1000000   ,  950000},
 	{440   ,1000000   , 1025000},
-	{533   ,1000000   , 1075000},
-	{750   ,1000000   , 1150000}
- };
-//	{160   ,1000000   , 875000},
+	{533   ,1000000   , 1075000} };
+
 mali_dvfs_table mali_dvfs[MALI_DVFS_STEPS]={
+	{160   ,1000000   , 875000},
 	{266   ,1000000   , 900000},
 	{350   ,1000000   , 950000},
 	{440   ,1000000   ,1025000},
-	{533   ,1000000   ,1075000},
-	{750   ,1000000   ,1150000}
+	{533   ,1000000   ,1075000}
 };
 
 mali_dvfs_threshold_table mali_dvfs_threshold[MALI_DVFS_STEPS]={
@@ -128,12 +125,11 @@ static unsigned int asv_3d_volt_9_table[MALI_DVFS_STEPS-1][ASV_LEVEL] = {
 };
 
 static unsigned int asv_3d_volt_9_table_for_prime[MALI_DVFS_STEPS][ASV_LEVEL_PRIME] = {
-//	{  950000,  937500,  925000,  912500,  900000,  887500,  875000,  862500,  875000,  862500,  850000,  850000,  850000},  /* L4(160Mhz) */
-	{  975000,  962500,  950000,  937500,  925000,  912500,  900000,  887500,  900000,  887500,  875000,  875000,  875000},	/* L3(266Mhz) */
-	{ 1025000, 1012500, 1000000,  987500,  975000,  962500,  950000,  937500,  950000,  937500,  912500,  900000,  887500},	/* L2(350Mhz) */
-	{ 1087500, 1075000, 1062500, 1050000, 1037500, 1025000, 1012500, 1000000, 1012500, 1000000,  975000,  962500,  950000},	/* L1(440Mhz) */
-	{ 1150000, 1137500, 1125000, 1112500, 1100000, 1087500, 1075000, 1062500, 1075000, 1062500, 1037500, 1025000, 1012500},
-	{ 1150000, 1150000, 1150000, 1150000, 1150000, 1150000, 1150000, 1150000, 1150000, 1150000, 1150000, 1150000, 1150000},	/* L0(533Mhz) */
+	{  962500,  937500,  925000,  912500,  900000,  887500,  875000,  862500,  875000,  862500,  850000,  850000,  850000},  /* L4(160Mhz) */
+	{  987500,  962500,  950000,  937500,  925000,  912500,  900000,  887500,  900000,  887500,  875000,  875000,  875000},	/* L3(266Mhz) */
+	{ 1037500, 1012500, 1000000,  987500,  975000,  962500,  950000,  937500,  950000,  937500,  912500,  900000,  887500},	/* L2(350Mhz) */
+	{ 1100000, 1075000, 1062500, 1050000, 1037500, 1025000, 1012500, 1000000, 1012500, 1000000,  975000,  962500,  950000},	/* L1(440Mhz) */
+	{ 1162500, 1137500, 1125000, 1112500, 1100000, 1087500, 1075000, 1062500, 1075000, 1062500, 1037500, 1025000, 1012500},	/* L0(533Mhz) */
 };
 #endif /* ASV_LEVEL */
 
@@ -203,7 +199,7 @@ static mali_bool set_mali_dvfs_status(u32 step,mali_bool boostup)
 
 #ifdef EXYNOS4_ASV_ENABLED
 	if (samsung_rev() < EXYNOS4412_REV_2_0) {
-		if (mali_dvfs[step].clock == 266) //160
+		if (mali_dvfs[step].clock == 160)
 			exynos4x12_set_abb_member(ABB_G3D, ABB_MODE_100V);
 		else
 			exynos4x12_set_abb_member(ABB_G3D, ABB_MODE_130V);
@@ -323,6 +319,7 @@ static unsigned int decideNextStatus(unsigned int utilization)
 	if (utilization < (int)(255 * mali_dvfs_threshold[maliDvfsStatus.currentStep].downthreshold / 100) &&
 			level > 0) {
 		level--;
+
 	}
 
 	if (_mali_osk_atomic_read(&bottomlock_status) > 0) {
@@ -399,7 +396,6 @@ void mali_dvfs_late_resume(void)
 static void mali_dvfs_work_handler(struct work_struct *w)
 {
 	bMaliDvfsRun=1;
-
 
 	MALI_DEBUG_PRINT(3, ("=== mali_dvfs_work_handler\n"));
 

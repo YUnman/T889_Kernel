@@ -152,7 +152,7 @@ void mali_regulator_enable(void)
 }
 
 void mali_regulator_set_voltage(int min_uV, int max_uV)
-{	
+{
 	int voltage;
 
 	_mali_osk_lock_wait(mali_dvfs_lock, _MALI_OSK_LOCKMODE_RW);
@@ -489,9 +489,7 @@ static _mali_osk_errcode_t enable_mali_clocks(void)
 		mali_regulator_set_voltage(mali_runtime_resume.vol, mali_runtime_resume.vol);
 		mali_clk_set_rate(mali_runtime_resume.clk, GPU_MHZ);
 	}
-	
 	if (mali_gpu_clk <= mali_runtime_resume.clk)
-		set_mali_dvfs_current_step(4);
 
 	MALI_SUCCESS;
 }
@@ -572,6 +570,7 @@ _mali_osk_errcode_t g3d_power_domain_control(int bpower_on)
 _mali_osk_errcode_t mali_platform_init()
 {
 	MALI_CHECK(init_mali_clock(), _MALI_OSK_ERR_FAULT);
+
 #if MALI_DVFS_ENABLED
 	if (!clk_register_map) clk_register_map = _mali_osk_mem_mapioregion( CLK_DIV_STAT_G3D, 0x20, CLK_DESC );
 	if(!init_mali_dvfs_status(MALI_DVFS_DEFAULT_STEP))
@@ -584,7 +583,9 @@ _mali_osk_errcode_t mali_platform_init()
 _mali_osk_errcode_t mali_platform_deinit()
 {
 	deinit_mali_clock();
-
+#if MALI_VOLTAGE_LOCK
+	_mali_osk_atomic_term(&voltage_lock_status);
+#endif
 #if MALI_DVFS_ENABLED
 	deinit_mali_dvfs_status();
 	if (clk_register_map )
@@ -671,3 +672,4 @@ _mali_osk_errcode_t mali_platform_power_mode_change(mali_power_mode power_mode)
 {
     MALI_SUCCESS;
 }
+
