@@ -1968,7 +1968,7 @@ static struct attribute_group voodoo_sound_control_group = {
 
 static struct miscdevice voodoo_sound_device = {
 	.minor = MISC_DYNAMIC_MINOR,
-#ifdef GALAXY_S3
+#ifndef GALAXY_S3
 	.name = "scoobydoo_sound",
 #else
 	.name = "voodoo_sound",
@@ -1978,7 +1978,7 @@ static struct miscdevice voodoo_sound_device = {
 #ifndef MODULE
 static struct miscdevice voodoo_sound_control_device = {
 	.minor = MISC_DYNAMIC_MINOR,
-#ifdef GALAXY_S3
+#ifndef GALAXY_S3
 	.name = "scoobydoo_sound_control",
 #else
 	.name = "voodoo_sound_control",
