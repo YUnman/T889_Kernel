@@ -10,10 +10,10 @@
  *
  */
 
-#include <linux/switch.h>
 #include <sound/soc.h>
 #include <linux/delay.h>
 #include <linux/miscdevice.h>
+#include <linux/switch.h>
 #include <linux/version.h>
 #include "wm8994_voodoo.h"
 
